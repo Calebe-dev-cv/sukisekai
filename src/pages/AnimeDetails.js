@@ -484,14 +484,13 @@ function AnimeDetails() {
 
 
       if (videoData.streams && videoData.streams.length > 0) {
+       
+        const originalUrl = videoData.streams[0].url;
 
-
-        videoData.streams.forEach((stream, index) => {
-        });
-
-
-        videoUrl = videoData.streams[0].url;
+        videoUrl = `${BACKEND_URL}/video-proxy?url=${encodeURIComponent(originalUrl)}`;
+        console.log(videoUrl);
       } else {
+        
       }
 
       setTimeout(() => {
