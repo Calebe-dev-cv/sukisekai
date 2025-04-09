@@ -12,6 +12,13 @@ const MangaImage = ({ src, alt, className, style }) => {
   
   const handleImageLoad = () => {
     console.log(`Imagem carregada: ${imgSrc}`);
+    
+    if (loadAttempts === 0) {
+      setTimeout(() => {
+        setImgSrc(`${src}?t=${Date.now()}`);
+        setLoadAttempts(1);
+      }, 50);
+    }
   };
   
   const handleImageError = () => {
