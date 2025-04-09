@@ -615,18 +615,26 @@ function MangasHome() {
     };
 
     const getImageUrl = (imageUrl, mangaTitle) => {
+        console.log("Tentando carregar imagem 0:", imageUrl);
         if (!imageUrl) {
+            console.log("Tentando carregar imagem 3:", imageUrl);
             return `/padrao.png`;
         }
-    
+
         if (window.location.hostname === 'localhost') {
+            console.log("Tentando carregar imagem 1:", imageUrl);
             return imageUrl;
+
         }
-    
+
         if (imageUrl.includes('uploads.mangadex.org')) {
+            console.log("Tentando carregar imagem 2:", imageUrl);
             return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle)}`;
+
         }
-    
+
+        console.log("Tentando carregar imagem 4:", imageUrl);
+
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle)}`;
     };
 
