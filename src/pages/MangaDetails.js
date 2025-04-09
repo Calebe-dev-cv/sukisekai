@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import '../components/Manga.css'
-import ImageFrame from '../components/ImageFrame';
+import ImageFrame from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -546,10 +546,10 @@ function MangaDetails() {
             <div className="row mb-4">
                 <div className="col-md-4 mb-4">
                     <div className="card shadow">
-                        <ImageFrame
+                        <MangaImage
                             src={manga.image}
-                            className="card-img-top"
                             alt={manga.title}
+                            className="card-img-top"
                             style={{ height: "auto", objectFit: "cover" }}
                         />
                         <div className="card-body">

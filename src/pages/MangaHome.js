@@ -3,7 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import '../components/Manga.css';
-import ImageFrame from '../components/ImageFrame';
+import ImageFrame from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -1130,13 +1130,12 @@ function MangasHome() {
                                 border: readMangas.includes(manga.id) ? "1px solid #74dcff" : "none",
                             }}
                         >
-                            <ImageFrame
-                                src={manga.image && manga.image.includes("http") ? manga.image : manga.image || ''}
+                            <MangaImage
+                                src={manga.image}
                                 alt={manga.title}
                                 className="card-img-top"
                                 style={{ height: "400px", objectFit: "cover" }}
                             />
-
                             {readMangas.includes(manga.id) && (
                                 <span className="position-absolute badge bg-info"
                                     style={{ top: "10px", right: "10px", zIndex: 1 }}>
