@@ -616,23 +616,21 @@ function MangasHome() {
 
     const getImageUrl = (imageUrl, mangaTitle) => {
         if (!imageUrl) {
-          return `/padrao.png`;
+            return `/padrao.png`;
         }
-      
-        if (window.location.hostname === 'localhost') {
-          if (imageUrl.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
-          }
-          return imageUrl;
-        }
-      
-        if (imageUrl.startsWith('http')) {
-          return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
-        }
-      
-        return imageUrl;
-      };
 
+        const timestamp = new Date().getTime();
+
+        if (window.location.hostname === 'localhost' && !imageUrl.includes('uploads.mangadex.org')) {
+            return imageUrl;
+        }
+
+        if (imageUrl.startsWith('http')) {
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
+        }
+
+        return imageUrl;
+    };
 
     const toggleGenre = (genreObj) => {
         setSelectedGenres(prev => {

@@ -282,28 +282,28 @@ function MangaDetails() {
 
 
     const getChapterProgress = (chapterId) => {
-        
+
 
         const isRead = isChapterRead(chapterId);
         if (isRead) return 100;
-    
+
 
         if (user?.mangaReadingHistory && Array.isArray(user.mangaReadingHistory)) {
-            
+
 
             user.mangaReadingHistory.forEach(entry => {
             });
-            
+
 
             const historyEntry = user.mangaReadingHistory.find(
                 entry => entry.chapterId === chapterId && entry.mangaId === id
             );
-            
-            
-        }     
+
+
+        }
         return 0;
     };
-    
+
 
     const markChapterAsRead = async (chapterId) => {
         if (!user) {
@@ -468,26 +468,24 @@ function MangaDetails() {
 
     const getImageUrl = (imageUrl) => {
         if (!imageUrl) return '/padrao.png';
-    
-        if (window.location.hostname === 'localhost') {
+
+        const timestamp = new Date().getTime();
+
+        if (window.location.hostname === 'localhost' && !imageUrl.includes('uploads.mangadex.org')) {
             return imageUrl;
         }
-    
-        if (imageUrl.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
-        }
-    
+
         if (imageUrl.startsWith('http')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}&_t=${timestamp}`;
         }
-    
+
         return imageUrl;
     };
 
     const isChapterRead = (chapterId) => {
 
         const isManuallyMarked = readChapters[id] && Array.isArray(readChapters[id]) && readChapters[id].includes(chapterId);
-        
+
 
         let hasHighProgress = false;
         if (user?.mangaReadingHistory && Array.isArray(user.mangaReadingHistory)) {
@@ -498,7 +496,7 @@ function MangaDetails() {
                 hasHighProgress = true;
             }
         }
-        
+
         return isManuallyMarked || hasHighProgress;
     };
 
@@ -616,7 +614,7 @@ function MangaDetails() {
 
                             <div className="d-flex flex-wrap my-3">
                                 {manga.genres && manga.genres.map((genre, index) => (
-                                    <span key={index} className="badge bg-info me-2 mb-2" style={{fontSize: "14px"}}>
+                                    <span key={index} className="badge bg-info me-2 mb-2" style={{ fontSize: "14px" }}>
                                         {genre}
                                     </span>
                                 ))}
