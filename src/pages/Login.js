@@ -39,10 +39,6 @@ function Login() {
               uid: user.uid,
               displayName: user.displayName,
               email: user.email,
-              photoURL: user.photoURL,
-              favoriteAnimes: [],
-              watchHistory: [],
-              watchedAnimes: [],
               lastLogin: new Date().toISOString()
             });
           }

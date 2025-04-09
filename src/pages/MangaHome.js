@@ -36,19 +36,20 @@ function MangasHome() {
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    const getImageUrl = (imageUrl) => {
+    const getImageUrl = (imageUrl, mangaTitle = '') => {
         if (!imageUrl) return '/padrao.png';
-
-        if (window.location.hostname === 'localhost') {
-            return imageUrl;
+        
+        if (window.location.hostname === 'localhost' && !imageUrl.includes('mangadex')) {
+          return imageUrl;
         }
-
-        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangas?.title || '')}`;
+        
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') || 
+            imageUrl.includes('mangadex.network')) {
+          return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(imageUrl)}`;
         }
-
-        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangas?.title || '')}`;
-    };
+        
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
+      };
 
     const fetchAvailableTags = async () => {
         try {
@@ -1135,7 +1136,7 @@ function MangasHome() {
                                 src={getImageUrl(manga?.image)}
                                 alt={manga?.title}
                                 className="card-img-top"
-                                style={{ height: "auto", objectFit: "cover" }}
+                                style={{ height: "400px", objectFit: "cover" }}
                                 onError={(e) => { e.target.src = '/padrao.png' }}
                             />
                             {readMangas.includes(manga.id) && (

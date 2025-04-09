@@ -65,8 +65,8 @@ function Header() {
 
   const handleLogout = () => {
     auth.signOut().then(() => {
-      localStorage.removeItem('@userAnime'); 
-      
+      localStorage.removeItem('@userAnime');
+
       setExpanded(false);
       navigate('/');
     }).catch((error) => {
@@ -189,7 +189,7 @@ function Header() {
                 >
                   {user.photoURL ? (
                     <Image
-                      src={user.photoURL.startsWith('/') ? user.photoURL : `/foto_perfil/${user.photoURL}`}
+                      src={`/foto_perfil/${user.photoURL}`}
                       alt={user.displayName}
                       roundedCircle
                       width="32"
@@ -199,7 +199,15 @@ function Header() {
                       onError={(e) => { e.target.onerror = null; e.target.src = '/foto_perfil/padrao.jpg' }}
                     />
                   ) : (
-                    <PersonCircle size={28} className="me-2" />
+                    <Image
+                      src="/foto_perfil/padrao.jpg"
+                      alt={user.displayName}
+                      roundedCircle
+                      width="32"
+                      height="32"
+                      className="me-2 border border-2 border-light"
+                      style={{ objectFit: 'cover' }}
+                    />
                   )}
                   <span className="d-none d-md-inline">{user.displayName}</span>
                 </Dropdown.Toggle>

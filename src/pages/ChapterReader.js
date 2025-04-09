@@ -494,15 +494,16 @@ function ChapterReader() {
     const getImageUrl = (page) => {
         if (!page || !page.url) return '/padrao.png';
 
-        if (window.location.hostname === 'localhost') {
+        if (window.location.hostname === 'localhost' && !page.url.includes('mangadex')) {
             return page.url;
         }
 
-        if (page.url.includes('mangadex.org') || page.url.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}&title=${encodeURIComponent(manga?.title || '')}`;
+        if (page.url.includes('mangadex.org') || page.url.includes('uploads.mangadex.org') ||
+            page.url.includes('mangadex.network')) {
+            return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(page.url)}`;
         }
 
-        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}&title=${encodeURIComponent(manga?.title || '')}`;
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}`;
     };
 
     if (loading) {

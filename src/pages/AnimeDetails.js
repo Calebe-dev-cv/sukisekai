@@ -488,7 +488,7 @@ function AnimeDetails() {
         const originalUrl = videoData.streams[0].url;
 
         videoUrl = `${BACKEND_URL}/video-proxy?url=${encodeURIComponent(originalUrl)}`;
-        console.log(videoUrl);
+        
       } else {
         
       }
