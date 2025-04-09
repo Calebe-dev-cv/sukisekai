@@ -44,10 +44,10 @@ function MangasHome() {
         }
 
         if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangas?.title || '')}`;
         }
 
-        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangas?.title || '')}`;
     };
 
     const fetchAvailableTags = async () => {
