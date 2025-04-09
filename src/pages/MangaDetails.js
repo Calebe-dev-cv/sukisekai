@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import '../components/Manga.css'
-import MangaImage from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -22,6 +21,20 @@ function MangaDetails() {
     const [remainingChapters, setRemainingChapters] = useState(0);
     const [chapterOrder, setChapterOrder] = useState('asc');
     const [readChapters, setReadChapters] = useState({});
+
+    const getImageUrl = (imageUrl) => {
+        if (!imageUrl) return '/padrao.png';
+
+        if (window.location.hostname === 'localhost') {
+            return imageUrl;
+        }
+
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org')) {
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+        }
+
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+    };
 
     useEffect(() => {
         setRemainingChapters(chapters.length - displayedChapters.length);
@@ -467,20 +480,6 @@ function MangaDetails() {
         setDisplayedChapters([...displayedChapters, ...nextBatch]);
     };
 
-    const getImageUrl = (page) => {
-        if (!page || !page.url) return '/padrao.png';
-
-        if (window.location.hostname === 'localhost') {
-            return page.url;
-        }
-
-        if (page.url.includes('mangadex.org') || page.url.includes('uploads.mangadex.org')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}&title=${encodeURIComponent(manga?.title || '')}`;
-        }
-
-        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}&title=${encodeURIComponent(manga?.title || '')}`;
-    };
-
     const isChapterRead = (chapterId) => {
 
         const isManuallyMarked = readChapters[id] && Array.isArray(readChapters[id]) && readChapters[id].includes(chapterId);
@@ -550,9 +549,10 @@ function MangaDetails() {
                 <div className="col-md-4 mb-4">
                     <div className="card shadow">
                         <img
-                            src={getImageUrl(page)}
-                            alt={`Página ${page.page || index + 1}`}
-                            className="img-fluid"
+                            src={getImageUrl(manga?.image)}
+                            alt={manga?.title}
+                            className="card-img-top"
+                            style={{ height: "auto", objectFit: "cover" }}
                             onError={(e) => { e.target.src = '/padrao.png' }}
                         />
                         <div className="card-body">

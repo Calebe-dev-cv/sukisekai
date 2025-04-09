@@ -3,7 +3,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import '../components/Manga.css';
-import MangaImage from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -36,6 +35,20 @@ function MangasHome() {
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+    const getImageUrl = (imageUrl) => {
+        if (!imageUrl) return '/padrao.png';
+
+        if (window.location.hostname === 'localhost') {
+            return imageUrl;
+        }
+
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org')) {
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+        }
+
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}`;
+    };
 
     const fetchAvailableTags = async () => {
         try {
@@ -1118,11 +1131,12 @@ function MangasHome() {
                                 border: readMangas.includes(manga.id) ? "1px solid #74dcff" : "none",
                             }}
                         >
-                            <MangaImage
-                                src={manga.image}
-                                alt={manga.title}
+                            <img
+                                src={getImageUrl(manga?.image)}
+                                alt={manga?.title}
                                 className="card-img-top"
-                                style={{ height: "400px", objectFit: "cover" }}
+                                style={{ height: "auto", objectFit: "cover" }}
+                                onError={(e) => { e.target.src = '/padrao.png' }}
                             />
                             {readMangas.includes(manga.id) && (
                                 <span className="position-absolute badge bg-info"
