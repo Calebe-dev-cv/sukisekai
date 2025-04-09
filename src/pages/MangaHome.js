@@ -36,30 +36,20 @@ function MangasHome() {
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    const getImageUrl = (imageUrl, mangaTitle = '') => {
+    const getImageUrl = (imageUrl = '') => {
         if (!imageUrl) return '/padrao.png';
-        
+
         if (window.location.hostname === 'localhost' && !imageUrl.includes('mangadex')) {
-          return imageUrl;
+            return imageUrl;
         }
-        
-        // Para capas do MangaDex
-        if (imageUrl.includes('uploads.mangadex.org/covers/')) {
-          // Extrair o ID do mangá da URL da capa
-          const mangaIdMatch = imageUrl.match(/\/covers\/([a-f0-9-]+)\//);
-          if (mangaIdMatch && mangaIdMatch[1]) {
-            const mangaId = mangaIdMatch[1];
-            return `${BACKEND_URL}/mangadex-cover?mangaId=${mangaId}`;
-          }
-        }
-        
-        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') || 
+
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') ||
             imageUrl.includes('mangadex.network')) {
-          return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(imageUrl)}`;
+            return imageUrl;
         }
-        
-        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
-      };
+
+        return imageUrl;
+    };
 
     const fetchAvailableTags = async () => {
         try {
