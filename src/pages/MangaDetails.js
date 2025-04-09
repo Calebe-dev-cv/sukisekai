@@ -468,17 +468,13 @@ function MangaDetails() {
 
     const getImageUrl = (imageUrl) => {
         if (!imageUrl) return '/padrao.png';
-
+    
         const timestamp = new Date().getTime();
-
-        if (window.location.hostname === 'localhost' && !imageUrl.includes('uploads.mangadex.org')) {
-            return imageUrl;
-        }
-
+    
         if (imageUrl.startsWith('http')) {
             return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}&_t=${timestamp}`;
         }
-
+    
         return imageUrl;
     };
 
