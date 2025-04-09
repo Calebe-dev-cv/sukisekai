@@ -39,15 +39,6 @@ function MangasHome() {
     const getImageUrl = (imageUrl = '') => {
         if (!imageUrl) return '/padrao.png';
 
-        if (window.location.hostname === 'localhost' && !imageUrl.includes('mangadex')) {
-            return imageUrl;
-        }
-
-        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') ||
-            imageUrl.includes('mangadex.network')) {
-            return imageUrl;
-        }
-
         return imageUrl;
     };
 

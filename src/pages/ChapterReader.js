@@ -494,15 +494,13 @@ function ChapterReader() {
     const getImageUrl = (page) => {
         if (!page || !page.url) return '/padrao.png';
 
-        if (window.location.hostname === 'localhost' && !page.url.includes('mangadex')) {
-            return page.url;
-        }
-
         if (page.url.includes('mangadex.org') || page.url.includes('uploads.mangadex.org') ||
             page.url.includes('mangadex.network')) {
+            console.log("eu");
             return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(page.url)}`;
-        }
 
+        }
+        console.log("teste");
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}`;
     };
 
