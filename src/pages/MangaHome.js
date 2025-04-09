@@ -615,55 +615,24 @@ function MangasHome() {
     };
 
     const getImageUrl = (imageUrl, mangaTitle) => {
-        if (!imageUrl) {
-            return `/padrao.png`;
-        }
-
+        if (!imageUrl) return '/padrao.png';
+    
         const timestamp = new Date().getTime();
-
-        if (imageUrl.startsWith('http')) {
-            const failedUrls = JSON.parse(localStorage.getItem('failedProxyUrls') || '{}');
-
-            if (failedUrls[imageUrl] === 'standard') {
-                console.log(`Usando proxy alternativo para: ${imageUrl}`);
-                return `${BACKEND_URL}/proxy-alt?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
-            }
-            else if (failedUrls[imageUrl] === 'both') {
-                console.log(`Tentando URL direta: ${imageUrl}`);
-                return imageUrl;
-            }
-            else {
-                return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
-            }
+        
+        if (window.location.hostname === 'localhost') {
+            return imageUrl;
         }
-
+        
+        if (imageUrl.startsWith('http')) {
+            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
+        }
+    
         return imageUrl;
     };
-
+    
     const handleImageError = (e, originalUrl, mangaTitle) => {
-        if (!originalUrl) {
-            e.target.src = '/padrao.png';
-            return;
-        }
-
-        const failedUrls = JSON.parse(localStorage.getItem('failedProxyUrls') || '{}');
-
-        if (e.target.src.includes('/proxy?')) {
-            failedUrls[originalUrl] = 'standard';
-            localStorage.setItem('failedProxyUrls', JSON.stringify(failedUrls));
-
-            const timestamp = new Date().getTime();
-            e.target.src = `${BACKEND_URL}/proxy-alt?url=${encodeURIComponent(originalUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
-        }
-        else if (e.target.src.includes('/proxy-alt?')) {
-            failedUrls[originalUrl] = 'both';
-            localStorage.setItem('failedProxyUrls', JSON.stringify(failedUrls));
-
-            e.target.src = originalUrl;
-        }
-        else {
-            e.target.src = '/padrao.png';
-        }
+        console.log(`Erro ao carregar imagem: ${originalUrl}`);
+        e.target.src = '/padrao.png';
     };
 
 
