@@ -3,7 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import '../components/Manga.css';
-import ImageFrame from '../components/MangaImage';
+import MangaImage from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import '../components/Manga.css'
-import ImageFrame from '../components/MangaImage';
+import MangaImage from '../components/MangaImage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
