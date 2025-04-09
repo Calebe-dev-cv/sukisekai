@@ -38,18 +38,18 @@ function MangasHome() {
 
     const getImageUrl = (imageUrl, mangaTitle = '') => {
         if (!imageUrl) return '/padrao.png';
-
+        
         if (window.location.hostname === 'localhost' && !imageUrl.includes('mangadex')) {
-            return imageUrl;
+          return imageUrl;
         }
-
-        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') ||
+        
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') || 
             imageUrl.includes('mangadex.network')) {
-            return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(imageUrl)}`;
+          return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(imageUrl)}`;
         }
-
+        
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
-    };
+      };
 
     const fetchAvailableTags = async () => {
         try {
