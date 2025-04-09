@@ -618,15 +618,15 @@ function MangasHome() {
         if (!imageUrl) {
             return `/padrao.png`;
         }
-
+    
         if (window.location.hostname === 'localhost') {
             return imageUrl;
         }
-
+    
         if (imageUrl.includes('uploads.mangadex.org')) {
             return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle)}`;
         }
-
+    
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle)}`;
     };
 
