@@ -615,18 +615,6 @@ function MangasHome() {
         return genreTranslations[lowerGenre] || genre;
     };
 
-    const getImageUrl = (imageUrl, mangaTitle) => {
-        if (!imageUrl) return '/padrao.png';
-
-        // Usar URL diretamente independente do ambiente
-        return imageUrl;
-    };
-
-    const handleImageError = (e, originalUrl, mangaTitle) => {
-        console.log(`Erro ao carregar imagem: ${originalUrl}`);
-        e.target.src = '/padrao.png';
-    };
-
 
     const toggleGenre = (genreObj) => {
         setSelectedGenres(prev => {
