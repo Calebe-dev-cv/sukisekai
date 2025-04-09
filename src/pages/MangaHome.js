@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import '../components/Manga.css';
+import ImageFrame from '../components/ImageFrame';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -616,20 +617,11 @@ function MangasHome() {
 
     const getImageUrl = (imageUrl, mangaTitle) => {
         if (!imageUrl) return '/padrao.png';
-    
-        const timestamp = new Date().getTime();
-        
-        if (window.location.hostname === 'localhost') {
-            return imageUrl;
-        }
-        
-        if (imageUrl.startsWith('http')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}&_t=${timestamp}`;
-        }
-    
+
+        // Usar URL diretamente independente do ambiente
         return imageUrl;
     };
-    
+
     const handleImageError = (e, originalUrl, mangaTitle) => {
         console.log(`Erro ao carregar imagem: ${originalUrl}`);
         e.target.src = '/padrao.png';
@@ -1138,15 +1130,11 @@ function MangasHome() {
                                 border: readMangas.includes(manga.id) ? "1px solid #74dcff" : "none",
                             }}
                         >
-                            <img
-                                src={getImageUrl(
-                                    manga.image && manga.image.includes("http") ? manga.image : manga.image || '',
-                                    manga.title
-                                )}
+                            <ImageFrame
+                                src={manga.image && manga.image.includes("http") ? manga.image : manga.image || ''}
                                 alt={manga.title}
                                 className="card-img-top"
                                 style={{ height: "400px", objectFit: "cover" }}
-                                onError={(e) => handleImageError(e, manga.image, manga.title)}
                             />
 
                             {readMangas.includes(manga.id) && (

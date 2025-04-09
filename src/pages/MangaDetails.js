@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import '../components/Manga.css'
+import ImageFrame from '../components/ImageFrame';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -469,16 +470,6 @@ function MangaDetails() {
     const getImageUrl = (imageUrl) => {
         if (!imageUrl) return '/padrao.png';
 
-        const timestamp = new Date().getTime();
-
-        if (window.location.hostname === 'localhost') {
-            return imageUrl;
-        }
-
-        if (imageUrl.startsWith('http')) {
-            return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(manga?.title || '')}&_t=${timestamp}`;
-        }
-
         return imageUrl;
     };
 
@@ -555,11 +546,11 @@ function MangaDetails() {
             <div className="row mb-4">
                 <div className="col-md-4 mb-4">
                     <div className="card shadow">
-                        <img
-                            src={getImageUrl(manga.image)}
+                        <ImageFrame
+                            src={manga.image}
                             className="card-img-top"
                             alt={manga.title}
-                            onError={(e) => handleImageError(e, manga.image)}
+                            style={{ height: "auto", objectFit: "cover" }}
                         />
                         <div className="card-body">
                             <div className="d-grid gap-2">
