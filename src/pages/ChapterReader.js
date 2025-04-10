@@ -496,11 +496,10 @@ function ChapterReader() {
 
         if (page.url.includes('mangadex.org') || page.url.includes('uploads.mangadex.org') ||
             page.url.includes('mangadex.network')) {
-            console.log("eu");
             return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(page.url)}`;
 
         }
-        console.log("teste");
+
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(page.url)}`;
     };
 

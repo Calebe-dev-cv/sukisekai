@@ -36,11 +36,18 @@ function MangasHome() {
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    const getImageUrl = (imageUrl = '') => {
+    const getImageUrl = (imageUrl, mangaTitle = '') => {
         if (!imageUrl) return '/padrao.png';
-
-        return imageUrl;
-    };
+        
+        // Para qualquer URL do MangaDex (covers ou capítulos)
+        if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') || 
+            imageUrl.includes('mangadex.network')) {
+                console.log("oiii");
+          return `${BACKEND_URL}/mangadex-image-cached?url=${encodeURIComponent(imageUrl)}`;
+        }
+        
+        return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
+      };
 
     const fetchAvailableTags = async () => {
         try {

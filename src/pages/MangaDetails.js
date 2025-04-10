@@ -24,15 +24,17 @@ function MangaDetails() {
 
     const getImageUrl = (imageUrl, mangaTitle = '') => {
         if (!imageUrl) return '/padrao.png';
-    
         
+        // Para qualquer URL do MangaDex (covers ou capítulos)
         if (imageUrl.includes('mangadex.org') || imageUrl.includes('uploads.mangadex.org') || 
             imageUrl.includes('mangadex.network')) {
-          return `${BACKEND_URL}/mangadex-image?url=${encodeURIComponent(imageUrl)}`;
+                console.log("oiii");
+          return `${BACKEND_URL}/mangadex-image-cached?url=${encodeURIComponent(imageUrl)}`;
         }
         
         return `${BACKEND_URL}/proxy?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(mangaTitle || '')}`;
       };
+
 
     useEffect(() => {
         setRemainingChapters(chapters.length - displayedChapters.length);
