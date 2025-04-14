@@ -422,12 +422,6 @@ function Profile() {
                   Explorar Animes
                 </button>
                 <button
-                  className="btn btn-outline-primary"
-                  onClick={() => navigate('/mangas')}
-                >
-                  Explorar Mangás
-                </button>
-                <button
                   className="btn btn-outline-danger"
                   onClick={handleLogout}
                 >
@@ -502,53 +496,6 @@ function Profile() {
                   </button>
                 </li>
               </ul>
-              <ul className="nav nav-tabs card-header-tabs">
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'favoriteMangas' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveTab('favoriteMangas');
-                      localStorage.setItem('@activeTab', 'favoriteMangas');
-                      navigate('/profile?tab=favoriteMangas', { replace: true });
-                    }}
-                  >
-                    Mangás Favoritos
-                    {user?.favoriteMangas?.length > 0 && (
-                      <span className="badge bg-primary ms-2">{user.favoriteMangas.length}</span>
-                    )}
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'readMangas' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveTab('readMangas');
-                      localStorage.setItem('@activeTab', 'readMangas');
-                      navigate('/profile?tab=readMangas', { replace: true });
-                    }}
-                  >
-                    Mangás Lidos
-                    {user?.readMangas?.length > 0 && (
-                      <span className="badge bg-primary ms-2">{user.readMangas.length}</span>
-                    )}
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${activeTab === 'mangaHistory' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveTab('mangaHistory');
-                      localStorage.setItem('@activeTab', 'mangaHistory');
-                      navigate('/profile?tab=mangaHistory', { replace: true });
-                    }}
-                  >
-                    Histórico de Mangás
-                    {user?.mangaReadingHistory?.length > 0 && (
-                      <span className="badge bg-primary ms-2">{user.mangaReadingHistory.length}</span>
-                    )}
-                  </button>
-                </li>
-              </ul>
             </div>
 
             <div className="card-body">
@@ -591,44 +538,6 @@ function Profile() {
                         <div className="card-body text-center">
                           <h5 className="card-title">Animes Completos</h5>
                           <h2>{user?.watchedAnimes?.length || 0}</h2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="row mt-4">
-                    <div className="col-md-4">
-                      <div className="card bg-light mb-6">
-                        <div className="card-body text-center">
-                          <h5 className="card-title">Mangás Favoritos</h5>
-                          <h2>{user?.favoriteMangas?.length || 0}</h2>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-4">
-                      <div className="card bg-light mb-6">
-                        <div className="card-body text-center">
-                          <h5 className="card-title">Capítulos Lidos</h5>
-                          <h2>
-                            {(() => {
-                              const fromHistory = user?.mangaReadingHistory?.filter(chapter => chapter.progress >= 85).length || 0;
-                              let fromManuallyMarked = 0;
-                              if (user?.readChapters) {
-                                Object.values(user.readChapters).forEach(chaptersArray => {
-                                  fromManuallyMarked += chaptersArray.length;
-                                });
-                              }
-                              return fromHistory + fromManuallyMarked;
-                            })()}
-                          </h2>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-4">
-                      <div className="card bg-light mb-6">
-                        <div className="card-body text-center">
-                          <h5 className="card-title">Mangás Lidos</h5>
-                          <h2>{user?.readMangas?.length || 0}</h2>
                         </div>
                       </div>
                     </div>

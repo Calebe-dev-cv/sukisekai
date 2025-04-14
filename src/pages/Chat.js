@@ -35,14 +35,8 @@ function Chat() {
     watched: [],
     favorites: []
   });
-  const [userMangas, setUserMangas] = useState({
-    read: [],
-    favorites: []
-  });
   const [allAnimes, setAllAnimes] = useState([]);
   const [animeGenres, setAnimeGenres] = useState([]);
-  const [mangaGenres, setMangaGenres] = useState([]);
-  const [mangasTags, setMangasTags] = useState({});
   const [loadingContent, setLoadingContent] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
@@ -54,7 +48,6 @@ function Chat() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
@@ -74,7 +67,6 @@ function Chat() {
             const userData = userDoc.data();
             setUser({ ...basicUserData, ...userData });
 
-
             let watched = [];
             let favorites = [];
 
@@ -90,23 +82,6 @@ function Chat() {
               watched: watched,
               favorites: favorites
             });
-
-
-            let readManga = [];
-            let favoriteManga = [];
-
-            if (userData.readManga && userData.readManga.length > 0) {
-              readManga = await fetchMangasById(userData.readManga);
-            }
-
-            if (userData.favoriteManga && userData.favoriteManga.length > 0) {
-              favoriteManga = await fetchMangasById(userData.favoriteManga);
-            }
-
-            setUserMangas({
-              read: readManga,
-              favorites: favoriteManga
-            });
           }
         } catch (err) {
           console.error("Erro ao carregar dados do usuário:", err);
@@ -119,7 +94,6 @@ function Chat() {
     return () => unsubscribe();
   }, [navigate]);
 
-
   useEffect(() => {
     const loadUserChats = async () => {
       if (!user) return;
@@ -128,7 +102,6 @@ function Chat() {
       try {
         const chats = await getUserChats(user.uid);
         setUserChats(chats);
-
 
         if (!currentChatId && chats.length > 0) {
           setCurrentChatId(chats[0].id);
@@ -143,7 +116,6 @@ function Chat() {
     loadUserChats();
   }, [user, currentChatId]);
 
-
   useEffect(() => {
     const loadChat = async () => {
       if (!user || !currentChatId) return;
@@ -154,7 +126,6 @@ function Chat() {
         setSessionStarted(true);
       } catch (error) {
         console.error("Erro ao carregar chat:", error);
-
         handleNewChat();
       }
     };
@@ -162,13 +133,11 @@ function Chat() {
     loadChat();
   }, [user, currentChatId]);
 
-
   const fetchAnimesById = async (animeIds) => {
     try {
       const animes = [];
 
       for (const id of animeIds) {
-
         const animeId = typeof id === 'object' ? id.id : id;
 
         if (!animeId) {
@@ -194,77 +163,20 @@ function Chat() {
     }
   };
 
-
-  const fetchMangasById = async (mangaIds) => {
-    try {
-      const mangas = [];
-
-      for (const id of mangaIds) {
-
-        const mangaId = typeof id === 'object' ? id.id : id;
-
-        if (!mangaId) {
-          console.error('ID de mangá inválido:', id);
-          continue;
-        }
-
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/mangas/${mangaId}`);
-          if (response.ok) {
-            const data = await response.json();
-            mangas.push(data);
-          }
-        } catch (error) {
-          console.error(`Erro ao buscar mangá ${mangaId}:`, error);
-        }
-      }
-
-      return mangas;
-    } catch (error) {
-      console.error("Erro ao buscar mangás por ID:", error);
-      return [];
-    }
-  };
-
-
   useEffect(() => {
     const fetchData = async () => {
       setLoadingContent(true);
       try {
-
         const animeResponse = await fetch(`${BACKEND_URL}/api/animes/populares?page=1`);
         if (animeResponse.ok) {
           const animeData = await animeResponse.json();
           setAllAnimes(animeData);
         }
 
-
         const animeGenreResponse = await fetch(`${BACKEND_URL}/api/genres/list`);
         if (animeGenreResponse.ok) {
           const animeGenreData = await animeGenreResponse.json();
           setAnimeGenres(animeGenreData);
-        }
-
-
-        const mangaTagsResponse = await fetch(`${BACKEND_URL}/api/mangas/tags`);
-        if (mangaTagsResponse.ok) {
-          const mangaTagsData = await mangaTagsResponse.json();
-          setMangasTags(mangaTagsData);
-
-
-          if (mangaTagsData && mangaTagsData.genres) {
-            const genresList = mangaTagsData.genres.map(genre => genre.name);
-            setMangaGenres(genresList);
-          }
-        }
-
-
-        if (!mangaGenres || mangaGenres.length === 0) {
-          const mangaGenreResponse = await fetch(`${BACKEND_URL}/api/mangas/genres/list`);
-          if (mangaGenreResponse.ok) {
-            const mangaGenreData = await mangaGenreResponse.json();
-            setMangaGenres(mangaGenreData);
-          }
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -276,11 +188,9 @@ function Chat() {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
 
   useEffect(() => {
     if (user && !currentChatId && !loadingContent && !sessionStarted) {
@@ -288,27 +198,19 @@ function Chat() {
     }
   }, [user, loadingContent, sessionStarted, currentChatId]);
 
-
   const handleNewChat = async (withWelcome = false) => {
     if (!user) return;
 
     let initialMessages = [];
 
     if (withWelcome) {
-
       let suggestedAnime = 'Naruto';
-      let suggestedManga = 'One Piece';
 
       if (userAnimes.watched.length > 0) {
         suggestedAnime = userAnimes.watched[0].title;
       } else if (allAnimes.length > 0) {
         suggestedAnime = allAnimes[0].title;
       }
-
-      if (userMangas.read.length > 0) {
-        suggestedManga = userMangas.read[0].title;
-      }
-
 
       const welcomeMessage = {
         id: Date.now(),
@@ -321,9 +223,9 @@ Você pode me perguntar coisas como:
 - Quero ver algo parecido com ${suggestedAnime}
 - Quais são os animes mais populares de ação?
 - Me sugira mangás de drama ou romance
-- Existe um mangá similar a ${suggestedManga}?
+- Existe algum mangá popular de aventura?
 - Qual é a diferença entre o anime e o mangá de ${suggestedAnime}?
-- Quando sai o próximo capítulo do mangá de ${suggestedManga}?
+- Quando sai o próximo capítulo de um mangá popular?
 Como posso te ajudar hoje? 😊`,
         sender: 'ai'
       };
@@ -332,21 +234,16 @@ Como posso te ajudar hoje? 😊`,
     }
 
     try {
-
       const newChatId = await createChat(user.uid, initialMessages);
-
 
       setCurrentChatId(newChatId);
       setMessages(initialMessages);
       setSessionStarted(true);
 
-
       const chats = await getUserChats(user.uid);
       setUserChats(chats);
 
-
       navigate(`/chat/${newChatId}`);
-
 
       inputRef.current?.focus();
     } catch (error) {
@@ -354,12 +251,10 @@ Como posso te ajudar hoje? 😊`,
     }
   };
 
-
   const handleSelectChat = (chatId) => {
     setCurrentChatId(chatId);
     navigate(`/chat/${chatId}`);
   };
-
 
   const handleDeleteChat = async (chatId, event) => {
     event.stopPropagation();
@@ -370,10 +265,8 @@ Como posso te ajudar hoje? 😊`,
       try {
         await deleteChat(user.uid, chatId);
 
-
         const chats = await getUserChats(user.uid);
         setUserChats(chats);
-
 
         if (chatId === currentChatId) {
           if (chats.length > 0) {
@@ -389,26 +282,22 @@ Como posso te ajudar hoje? 😊`,
     }
   };
 
-
   const handleEditTitle = (chatId, currentTitle, event) => {
     event.stopPropagation();
     setEditingTitle(chatId);
     setNewTitle(currentTitle);
   };
 
-
   const handleSaveTitle = async (chatId, event) => {
-    event.stopPropagation(); 
+    event.stopPropagation();
 
     if (!user || !newTitle.trim()) return;
 
     try {
       await updateChatTitle(user.uid, chatId, newTitle);
 
-
       const chats = await getUserChats(user.uid);
       setUserChats(chats);
-
 
       setEditingTitle(null);
       setNewTitle('');
@@ -417,15 +306,12 @@ Como posso te ajudar hoje? 😊`,
     }
   };
 
-
   const simulateTyping = (message) => {
-
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
 
     setIsTyping(true);
-
 
     const typingTime = Math.min(1500, message.length * 10);
 
@@ -436,10 +322,8 @@ Como posso te ajudar hoje? 😊`,
     setTypingTimeout(timeout);
   };
 
-
   const handleSend = async () => {
     if (!input.trim() || !user || !currentChatId) return;
-
 
     const userMessage = {
       id: Date.now(),
@@ -447,19 +331,15 @@ Como posso te ajudar hoje? 😊`,
       sender: 'user'
     };
 
-
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
     simulateTyping(input);
 
     try {
-
       await addMessageToChat(user.uid, currentChatId, userMessage);
 
-
       const userData = {
-
         watchedAnimes: userAnimes.watched.map(anime => ({
           id: anime.id,
           title: anime.title
@@ -467,18 +347,8 @@ Como posso te ajudar hoje? 😊`,
         favoriteAnimes: userAnimes.favorites.map(anime => ({
           id: anime.id,
           title: anime.title
-        })),
-
-        readManga: userMangas.read.map(manga => ({
-          id: manga.id,
-          title: manga.title
-        })),
-        favoriteManga: userMangas.favorites.map(manga => ({
-          id: manga.id,
-          title: manga.title
         }))
       };
-
 
       const allAnimeGenres = new Set(animeGenres);
       allAnimes.forEach(anime => {
@@ -486,7 +356,6 @@ Como posso te ajudar hoje? 😊`,
           anime.genres.forEach(genre => allAnimeGenres.add(genre));
         }
       });
-
 
       const response = await fetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
@@ -498,8 +367,10 @@ Como posso te ajudar hoje? 😊`,
           userData: userData,
           availableAnimes: allAnimes,
           availableGenres: Array.from(allAnimeGenres),
-          availableMangasGenres: mangaGenres,
-          availableMangasTags: mangasTags
+          chatHistory: messages.map(msg => ({
+            text: msg.text,
+            sender: msg.sender
+          }))
         }),
       });
 
@@ -509,25 +380,20 @@ Como posso te ajudar hoje? 😊`,
 
       const data = await response.json();
 
-
       const aiMessage = {
         id: Date.now(),
         text: data.response,
         sender: 'ai'
       };
 
-
       setMessages(prev => [...prev, aiMessage]);
 
-
       await addMessageToChat(user.uid, currentChatId, aiMessage);
-
 
       const chats = await getUserChats(user.uid);
       setUserChats(chats);
     } catch (error) {
       console.error("Erro ao processar mensagem:", error);
-
 
       const errorMessage = {
         id: Date.now(),
@@ -536,16 +402,13 @@ Como posso te ajudar hoje? 😊`,
         isError: true
       };
 
-
       setMessages(prev => [...prev, errorMessage]);
-
 
       await addMessageToChat(user.uid, currentChatId, errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleClearChat = async () => {
     if (!user || !currentChatId) return;
@@ -555,7 +418,6 @@ Como posso te ajudar hoje? 😊`,
         await clearChatMessages(user.uid, currentChatId);
         setMessages([]);
 
-
         const chats = await getUserChats(user.uid);
         setUserChats(chats);
       } catch (error) {
@@ -564,19 +426,14 @@ Como posso te ajudar hoje? 😊`,
     }
   };
 
-
   const handleContentClick = (contentId, contentType) => {
     if (contentType === 'anime') {
       navigate(`/anime/${contentId}`);
-    } else if (contentType === 'manga') {
-      navigate(`/manga/${contentId}`);
     }
   };
 
-
   const processMessageText = (text) => {
     if (!text) return '';
-
 
     const paragraphs = text.split('\n');
 
@@ -585,33 +442,25 @@ Como posso te ajudar hoje? 😊`,
         return <br key={index} />;
       }
 
-
       let processedText = paragraph;
-
-
 
       const sortedAnimes = [...allAnimes].sort((a, b) =>
         b.title?.length - a.title?.length
       );
 
-
       let parts = [processedText];
-
 
       sortedAnimes.forEach(anime => {
         const animeTitle = anime.title;
         if (!animeTitle) return;
 
-
         let newParts = [];
 
         parts.forEach(part => {
-
           if (typeof part !== 'string') {
             newParts.push(part);
             return;
           }
-
 
           const regex = new RegExp(`(${escapeRegExp(animeTitle)})`, 'gi');
           const splitPart = part.split(regex);
@@ -636,18 +485,13 @@ Como posso te ajudar hoje? 😊`,
         parts = newParts;
       });
 
-
-
-
       return <p key={index}>{parts}</p>;
     });
   };
 
-
   const escapeRegExp = (string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
-
 
   const renderMessage = (message) => {
     const isAi = message.sender === 'ai';
@@ -685,7 +529,6 @@ Como posso te ajudar hoje? 😊`,
     );
   };
 
-
   const formatDate = (timestamp) => {
     if (!timestamp) return '';
 
@@ -694,20 +537,16 @@ Como posso te ajudar hoje? 😊`,
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
 
-
     if (date.toDateString() === now.toDateString()) {
       return 'Hoje';
     }
-
 
     if (date.toDateString() === yesterday.toDateString()) {
       return 'Ontem';
     }
 
-
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
-
 
   if (!user) {
     return (

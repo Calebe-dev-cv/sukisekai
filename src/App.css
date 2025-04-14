@@ -501,6 +501,53 @@ video::cue {
   margin-bottom: 1rem;
 }
 
+/* Adicione este CSS ao seu arquivo de estilos */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.custom-video-controls {
+  position: absolute;
+  bottom: 55px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Importante para permitir que cliques passem através */
+}
+
+.custom-video-controls button {
+  pointer-events: auto; /* Isso permite clicar nos botões */
+  opacity: 0.8;
+}
+
+.custom-video-controls button:hover {
+  opacity: 1;
+}
+
+/* Para tela cheia */
+.video-container:fullscreen .custom-video-controls {
+  bottom: 80px;
+}
+
+:-webkit-full-screen .custom-video-controls {
+  bottom: 80px;
+}
+
+:-moz-full-screen .custom-video-controls {
+  bottom: 80px;
+}
+
+:-ms-fullscreen .custom-video-controls {
+  bottom: 80px;
+}
+
 /* Adicione ao seu App.css */
 
 /* Estilo do histórico de chats mobile-first */

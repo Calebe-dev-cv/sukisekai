@@ -132,38 +132,6 @@ function Header() {
               </>
             )}
 
-            <Nav.Link
-              as={Link}
-              to="/mangas"
-              onClick={() => setExpanded(false)}
-              className={`d-flex align-items-center justify-content-center px-3 py-2 ${isActive('/mangas') ? 'active' : ''}`}
-            >
-              Explorar Mangás
-            </Nav.Link>
-
-            {user && (
-              <>
-                <Nav.Link
-                  as={Button}
-                  variant="link"
-                  className="text-white text-decoration-none px-3 py-2"
-                  onClick={() => handleProfileClick('favoriteMangas')}
-                >
-                  <Heart className="me-1 d-none d-md-inline" />
-                  Favoritos
-                </Nav.Link>
-
-                <Nav.Link
-                  as={Button}
-                  variant="link"
-                  className="text-white text-decoration-none px-3 py-2"
-                  onClick={() => handleProfileClick('mangaHistory')}
-                >
-                  <ClockHistory className="me-1 d-none d-md-inline" />
-                  Histórico
-                </Nav.Link>
-              </>
-            )}
 
 
           </Nav>
@@ -218,18 +186,11 @@ function Header() {
                   </Dropdown.Item>
 
                   <Dropdown.Item onClick={() => handleProfileClick('favorites')}>
-                    <Heart className="me-2" /> Animes Favoritos
-                  </Dropdown.Item>
-
-                  <Dropdown.Item onClick={() => handleProfileClick('favoriteMangas')}>
-                    <Book className="me-2" /> Mangás Favoritos
+                    <Heart className="me-2" />  Favoritos
                   </Dropdown.Item>
 
                   <Dropdown.Item onClick={() => handleProfileClick('history')}>
-                    <ClockHistory className="me-2" /> Histórico Anime
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleProfileClick('mangaHistory')}>
-                    <ClockHistory className="me-2" /> Histórico Mangá
+                    <ClockHistory className="me-2" /> Histórico 
                   </Dropdown.Item>
 
                   <Dropdown.Divider />

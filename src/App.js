@@ -10,9 +10,6 @@ import AnimeDetails from './pages/AnimeDetails';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Chat from './pages/Chat';
-import MangasHome from './pages/MangaHome';
-import MangaDetails from './pages/MangaDetails';
-import ChapterReader from './pages/ChapterReader';
 
 function App() {
   return (
@@ -27,9 +24,6 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat/:chatId" element={<Chat />} />
-            <Route path="/mangas" element={<MangasHome />} />
-            <Route path="/manga/:id" element={<MangaDetails />} />
-            <Route path="/manga/:id/chapter/:chapterId" element={<ChapterReader />} />
           </Routes>
         </main>
         <Rodape />

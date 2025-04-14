@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebaseConfig';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import * as bootstrap from 'bootstrap';
+import { TbPlayerTrackNextFilled, TbPlayerTrackPrevFilled } from "react-icons/tb";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -26,6 +27,11 @@ function AnimeDetails() {
   const [episodesPerPage, setEpisodesPerPage] = useState(24);
   const [remainingEpisodes, setRemainingEpisodes] = useState(0);
   const [episodeOrder, setEpisodeOrder] = useState('asc');
+  const videoRef = useRef(null);
+  const [seekAction, setSeekAction] = useState(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const playPromiseRef = useRef(null);
+  const seekInProgressRef = useRef(false);
 
   useEffect(() => {
     setRemainingEpisodes(episodes.length - displayedEpisodes.length);
@@ -42,8 +48,7 @@ function AnimeDetails() {
     if (!loading && episodes.length > 0 && episodeIdFromUrl) {
       const episodeToOpen = episodes.find(ep => ep.id === episodeIdFromUrl);
       if (episodeToOpen) {
-
-        handleEpisodeClick(episodeToOpen, true);
+        handleEpisodeClick(episodeToOpen);
       }
     }
   }, [loading, episodes, episodeIdFromUrl]);
@@ -93,7 +98,6 @@ function AnimeDetails() {
         setLoading(true);
         setError(null);
 
-
         const response = await fetch(`${API_URL}/api/anime?id=${id}`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: Unable to fetch anime details`);
@@ -104,7 +108,6 @@ function AnimeDetails() {
         if (!data || data.error) {
           throw new Error(data.error || "Failed to load anime data");
         }
-
 
         setAnime({
           id: data.id,
@@ -123,7 +126,6 @@ function AnimeDetails() {
           season: data.season
         });
 
-
         if (data.episodios && Array.isArray(data.episodios)) {
           let allEpisodes = data.episodios.map(ep => ({
             id: ep.numero.toString(),
@@ -132,7 +134,6 @@ function AnimeDetails() {
             link: ep.link,
             image: data.image
           }));
-
 
           allEpisodes = allEpisodes.sort((a, b) => a.number - b.number);
 
@@ -206,6 +207,110 @@ function AnimeDetails() {
         return "black";
       default:
         return "#0dcaf0";
+    }
+  };
+
+  const handleVideoSeek = async (seconds) => {
+    if (seekInProgressRef.current || !videoRef.current) return;
+
+    seekInProgressRef.current = true;
+
+    try {
+      if (playPromiseRef.current) {
+        try {
+          await playPromiseRef.current;
+        } catch (error) { }
+        playPromiseRef.current = null;
+      }
+
+      videoRef.current.pause();
+
+      const wasPlaying = !videoRef.current.paused;
+      const oldTime = videoRef.current.currentTime;
+      videoRef.current.currentTime = Math.max(0, Math.min(oldTime + seconds, videoRef.current.duration));
+
+      setSeekAction({
+        direction: seconds > 0 ? 'forward' : 'backward',
+        seconds: Math.abs(seconds)
+      });
+
+      setTimeout(() => {
+        setSeekAction(null);
+      }, 1000);
+
+      if (wasPlaying) {
+        try {
+          playPromiseRef.current = videoRef.current.play();
+          await playPromiseRef.current;
+          playPromiseRef.current = null;
+        } catch (error) {
+          playPromiseRef.current = null;
+        }
+      }
+    } catch (error) {
+    } finally {
+      setTimeout(() => {
+        seekInProgressRef.current = false;
+      }, 300);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedEpisode || e.repeat) return;
+
+      if (e.key === 'ArrowRight') {
+        handleVideoSeek(10);
+      } else if (e.key === 'ArrowLeft') {
+        handleVideoSeek(-10);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedEpisode]);
+
+  const handleVideoClick = (e) => {
+    e.preventDefault();
+
+    if (e.target !== videoRef.current) return;
+
+    setControlsVisible(true);
+
+    if (videoRef.current) {
+      clearTimeout(videoRef.current.controlsTimeout);
+      videoRef.current.controlsTimeout = setTimeout(() => {
+        setControlsVisible(false);
+      }, 3000);
+
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => { });
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
+
+  const handleVideoTouch = (e) => {
+    e.preventDefault();
+
+    if (e.target !== videoRef.current) return;
+
+    setControlsVisible(true);
+
+    if (videoRef.current) {
+      clearTimeout(videoRef.current.controlsTimeout);
+      videoRef.current.controlsTimeout = setTimeout(() => {
+        setControlsVisible(false);
+      }, 3000);
+
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => { });
+      } else {
+        videoRef.current.pause();
+      }
     }
   };
 
@@ -397,25 +502,20 @@ function AnimeDetails() {
         if (userDoc.exists()) {
           let currentHistory = userDoc.data().watchHistory || [];
 
-
           currentHistory = currentHistory.filter(item =>
             !(item.episodeId === episodeId && item.animeId === id)
           );
 
-
           currentHistory.push(watchData);
-
 
           await updateDoc(userDocRef, {
             watchHistory: currentHistory
           });
 
-
           setWatchProgress({
             ...watchProgress,
             [episodeId]: progressPercent
           });
-
 
           if (progressPercent >= 85) {
             const allEpisodesWatched = episodes.every(ep => {
@@ -428,7 +528,6 @@ function AnimeDetails() {
             }
           }
         } else {
-
           await setDoc(userDocRef, {
             watchHistory: [watchData],
             uid: auth.currentUser.uid
@@ -448,7 +547,6 @@ function AnimeDetails() {
 
     try {
       const streamId = `${id.replace('-todos-os-episodios', '')}/${episode.number}`;
-
 
       let savedProgress = 0;
       if (user && auth.currentUser) {
@@ -482,15 +580,9 @@ function AnimeDetails() {
 
       let videoUrl = null;
 
-
       if (videoData.streams && videoData.streams.length > 0) {
-       
         const originalUrl = videoData.streams[0].url;
-
         videoUrl = `${BACKEND_URL}/video-proxy?url=${encodeURIComponent(originalUrl)}`;
-        
-      } else {
-        
       }
 
       setTimeout(() => {
@@ -543,17 +635,14 @@ function AnimeDetails() {
     const [fallbackIndex, setFallbackIndex] = useState(0);
     const videoRef = useRef(null);
 
-
     const fallbackUrls = useMemo(() => {
       if (!url) return [];
-
 
       const match = url.match(/\/([^\/]+)\/(\d+)\/(.+)\.mp4$/);
 
       if (!match) return [];
 
       const [, animeId, episodeNumber, quality] = match;
-
 
       return [
         url,
@@ -593,29 +682,48 @@ function AnimeDetails() {
     }
 
     return (
-
       <video
+        ref={videoRef}
         src={selectedEpisode.url}
         controls
         autoPlay
         className="w-100 h-100"
+        onClick={handleVideoClick}
+        onTouchStart={handleVideoTouch}
+        onTouchEnd={(e) => e.preventDefault()}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onPlay={() => {
+          clearTimeout(videoRef.current.controlsTimeout);
+          videoRef.current.controlsTimeout = setTimeout(() => {
+            setControlsVisible(false);
+          }, 3000);
+        }}
+        onPause={() => {
+          setControlsVisible(true);
+          clearTimeout(videoRef.current.controlsTimeout);
+        }}
         onError={(e) => {
           console.error("Erro ao carregar vídeo:", e);
           console.error("URL do vídeo:", selectedEpisode.url);
           console.error("Detalhes do erro:", e.target.error);
         }}
+        onLoadedMetadata={(e) => {
+          if (selectedEpisode.savedProgress && selectedEpisode.savedProgress > 0) {
+            const duration = e.target.duration;
+            if (duration) {
+              const startTimeSeconds = (selectedEpisode.savedProgress / 100) * duration;
+              e.target.currentTime = startTimeSeconds;
+            }
+          }
+        }}
         onTimeUpdate={(e) => {
-
           const currentTime = e.target.currentTime;
           const duration = e.target.duration;
-
-
           if (duration && duration > 0) {
-
             const currentProgress = Math.floor((currentTime / duration) * 100);
-
-
-
             if (
               Math.floor(currentTime) % 5 === 0 ||
               currentProgress === 25 ||
@@ -627,7 +735,6 @@ function AnimeDetails() {
           }
         }}
         onEnded={() => {
-
           updateWatchProgress(selectedEpisode.id, 100);
         }}
       />
@@ -765,6 +872,7 @@ function AnimeDetails() {
                     <strong>Nota:</strong> {anime.score && `${anime.score}/10` || 'Sem nota'} &nbsp;
                     {anime.votes ? `(${Number(anime.votes).toLocaleString('pt-BR')} votos)` : ''}
                   </p>
+
                 </div>
               </div>
 
@@ -923,7 +1031,7 @@ function AnimeDetails() {
                 ></button>
               </div>
               <div className="modal-body">
-                <div className="ratio ratio-16x9">
+                <div className="ratio">
                   {episodeLoading ? (
                     <div className="d-flex justify-content-center align-items-center bg-dark">
                       <div className="spinner-border text-light" role="status">
@@ -931,47 +1039,97 @@ function AnimeDetails() {
                       </div>
                     </div>
                   ) : selectedEpisode.url ? (
-                    <video
-                      src={selectedEpisode.url}
-                      controls
-                      autoPlay
-                      className="w-100 h-100"
-                      onError={(e) => {
-                        console.error("Erro ao carregar vídeo:", e);
-                        console.error("URL do vídeo:", selectedEpisode.url);
-                        console.error("Detalhes do erro:", e.target.error);
-                      }}
-
-                      onLoadedMetadata={(e) => {
-                        if (selectedEpisode.savedProgress && selectedEpisode.savedProgress > 0) {
-
+                    <div className="video-container">
+                      <video
+                        ref={videoRef}
+                        src={selectedEpisode.url}
+                        controls
+                        autoPlay
+                        className="w-100 h-100"
+                        onClick={handleVideoClick}
+                        onTouchStart={handleVideoTouch}
+                        onTouchEnd={(e) => e.preventDefault()}
+                        onTouchMove={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onPlay={() => {
+                          clearTimeout(videoRef.current.controlsTimeout);
+                          videoRef.current.controlsTimeout = setTimeout(() => {
+                            setControlsVisible(false);
+                          }, 3000);
+                        }}
+                        onPause={() => {
+                          setControlsVisible(true);
+                          clearTimeout(videoRef.current.controlsTimeout);
+                        }}
+                        onError={(e) => {
+                          console.error("Erro ao carregar vídeo:", e);
+                        }}
+                        onLoadedMetadata={(e) => {
+                          if (selectedEpisode.savedProgress && selectedEpisode.savedProgress > 0) {
+                            const duration = e.target.duration;
+                            if (duration) {
+                              const startTimeSeconds = (selectedEpisode.savedProgress / 100) * duration;
+                              e.target.currentTime = startTimeSeconds;
+                            }
+                          }
+                        }}
+                        onTimeUpdate={(e) => {
+                          const currentTime = e.target.currentTime;
                           const duration = e.target.duration;
-                          if (duration) {
-                            const startTimeSeconds = (selectedEpisode.savedProgress / 100) * duration;
+                          if (duration && duration > 0) {
+                            const currentProgress = Math.floor((currentTime / duration) * 100);
+                            if (
+                              Math.floor(currentTime) % 5 === 0 ||
+                              currentProgress === 25 ||
+                              currentProgress === 50 ||
+                              currentProgress === 75
+                            ) {
+                              updateWatchProgress(selectedEpisode.id, currentProgress);
+                            }
+                          }
+                        }}
+                        onEnded={() => {
+                          updateWatchProgress(selectedEpisode.id, 100);
+                        }}
+                      />
 
-                            e.target.currentTime = startTimeSeconds;
-                          }
-                        }
-                      }}
-                      onTimeUpdate={(e) => {
-                        const currentTime = e.target.currentTime;
-                        const duration = e.target.duration;
-                        if (duration && duration > 0) {
-                          const currentProgress = Math.floor((currentTime / duration) * 100);
-                          if (
-                            Math.floor(currentTime) % 5 === 0 ||
-                            currentProgress === 25 ||
-                            currentProgress === 50 ||
-                            currentProgress === 75
-                          ) {
-                            updateWatchProgress(selectedEpisode.id, currentProgress);
-                          }
-                        }
-                      }}
-                      onEnded={() => {
-                        updateWatchProgress(selectedEpisode.id, 100);
-                      }}
-                    />
+                      {/* Custom controls that follow the same visibility as native controls */}
+                      <div
+                        className="custom-video-controls"
+                        style={{ opacity: controlsVisible ? 1 : 0 }}
+                      >
+                        <TbPlayerTrackPrevFilled size={20}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVideoSeek(-10);
+                          }}
+                          title="Retroceder 10 segundos"
+                          style={{ right: '240px', position: 'absolute', bottom: '-10px', color: 'white' }} />
+
+                        <TbPlayerTrackNextFilled size={20}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVideoSeek(10);
+                          }}
+                          title="Avançar 10 segundos"
+                          style={{ right: '190px', position: 'absolute', bottom: '-10px', color: 'white' }} />
+                      </div>
+
+                      {seekAction && (
+                        <div className="position-absolute bg-dark bg-opacity-75 text-white p-3 rounded-circle"
+                          style={{
+                            top: '50%',
+                            left: seekAction.direction === 'forward' ? '60%' : '40%',
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: 40
+                          }}>
+                          <i className={`bi bi-${seekAction.direction === 'forward' ? 'arrow-clockwise' : 'arrow-counterclockwise'} fs-1`}></i>
+                          <div className="mt-1 text-center">{seekAction.seconds}s</div>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="d-flex justify-content-center align-items-center bg-dark text-white">
                       <div className="text-center">
